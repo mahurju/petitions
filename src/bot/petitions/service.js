@@ -23,6 +23,8 @@ const getLastAlarmCount = async () => {
 };
 
 const checkCount = async () => {
+  console.log(new Date());
+
   const lastAlarmCount = await getLastAlarmCount();
   console.log(lastAlarmCount);
 
@@ -32,7 +34,7 @@ const checkCount = async () => {
   const currentNum = currentCount.split(',').reduce((pre, next) => pre + next, '');
 
   // const alarmCount = Math.floor(currentNum / 500) * 500;
-  const alarmCount = Math.floor(currentNum / 10) * 10;
+  const alarmCount = Math.floor(currentNum / 100) * 100;
   console.log(alarmCount);
 
   if (parseInt(lastAlarmCount, 10) < parseInt(alarmCount, 10)) {
@@ -41,7 +43,7 @@ const checkCount = async () => {
     const listenChatIds = await petitions.child('/listenChatIds').once('value');
     const ids = listenChatIds.val() || {};
 
-    const msg = `<b>** ${numberformat(alarmCount)}명 돌파, 앞으로 ${numberformat(200000 - alarmCount)}명 **</b>\n\n국민연금 주식대여금지 청원 20만명 달성을 응원합니다. 이 알람은 청원참여수 100명 단위마다 발송되는 메시지 입니다.\n\nhttp://www1.president.go.kr/petitions/394401?navigation=best-petitions`;
+    const msg = `<b>** ${numberformat(alarmCount)}명 돌파, 앞으로 ${numberformat(200000 - alarmCount)}명 **</b>\n\n국민연금 주식대여금지 청원 20만명 달성을 응원합니다.\n\n이 알람은 청원참여수 100명 단위마다 발송되는 메시지 입니다.\n\nhttp://www1.president.go.kr/petitions/394401?navigation=best-petitions`;
 
     await Promise.all(Object.keys(ids).map(async (chatId) => {
       bot.telegram.sendMessage(chatId, msg, { parse_mode: 'HTML' });
@@ -100,7 +102,7 @@ exports.remove = async (reply, chatId) => {
       listenChatIds: newIds,
     };
     await petitions.update(updates);
-    reply('added', { parse_mode: 'HTML' });
+    reply('알람발송이 중지되었습니다.', { parse_mode: 'HTML' });
   } else {
     reply('not found id', { parse_mode: 'HTML' });
   }
@@ -117,8 +119,9 @@ exports.get = async (reply) => {
 };
 
 exports.initListen = async (myBot) => {
+  console.log(new Date());
   bot = myBot;
-  job = schedule.scheduleJob('*/5 * * * *', async () => {
+  job = schedule.scheduleJob('*/1 * * * *', async () => {
     await checkCount();
   });
 };
